@@ -1,0 +1,19 @@
+version: '3'
+services:
+  db:
+    image: mongo:3.6-jessie
+    ports:
+      - "27017:27017"
+
+  middle:
+    build: ./middle
+    volumes:
+      - ./middle:/app
+    depends_on:
+      - db
+    ports:
+      - "8888:8888"
+    environment:
+        DB_HOST: db
+        DB_NAME: middle
+    command: python3 /app/main.py
