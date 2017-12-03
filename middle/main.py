@@ -4,9 +4,6 @@ import motor
 import tornado
 import tornado.web
 
-client = motor.motor_tornado.MotorClient(os.environ['DB_HOST'], 27017)
-db = client[os.environ['DB_NAME']]
-
 
 class MainHandler(tornado.web.RequestHandler):
     async def post(self):
@@ -16,9 +13,16 @@ class MainHandler(tornado.web.RequestHandler):
         self.write(str(result.inserted_id))
 
 
-application = tornado.web.Application([
-    (r'/', MainHandler)
-], db=db)
+if __name__ == "__main__":
+    client = motor.motor_tornado.MotorClient(os.environ['DB_HOST'], 27017)
+    db = client[os.environ['DB_NAME']]
 
-application.listen(8888)
-tornado.ioloop.IOLoop.current().start()
+    app = tornado.web.Application([
+        (r'/', MainHandler)
+    ],
+    debug=False,
+    db=db)
+
+    server = tornado.httpserver.HTTPServer(app)
+    server.bind(8888)
+    tornado.ioloop.IOLoop.instance().start()
