@@ -1,15 +1,11 @@
-import tornado
-import tornado.web
+import aiohttp
+import aiohttp.web
 
 
-class MainHandler(tornado.web.RequestHandler):
-    async def post(self):
-        self.write('{"insertion": "ok"}')
+async def handle(request):
+    return aiohttp.web.Response(text='{"inserted_id": "asdfasdf"}')
 
+app = aiohttp.web.Application()
+app.router.add_post('/', handle)
 
-application = tornado.web.Application([
-    (r'/', MainHandler)
-], debug=False)
-
-application.listen(8888)
-tornado.ioloop.IOLoop.current().start()
+aiohttp.web.run_app(app)
