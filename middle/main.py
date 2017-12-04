@@ -1,24 +1,22 @@
-import json
 import os
-import motor
 import tornado
 import tornado.web
+from tornado.httpclient import AsyncHTTPClient
 
-client = motor.motor_tornado.MotorClient(os.environ['DB_HOST'], 27017)
-db = client[os.environ['DB_NAME']]
+UPSTREAM_HOST = os.environ['UPSTREAM_HOST']
 
 
 class MainHandler(tornado.web.RequestHandler):
     async def post(self):
-        db = self.settings['db']
-
-        result = await db.devices.insert_one(json.loads(self.request.body.decode('utf-8')))
-        self.write(str(result.inserted_id))
+        http_client = AsyncHTTPClient()
+        url = 'http://%s:8888/' % (UPSTREAM_HOST)
+        result = await http_client.fetch(url, method='POST', body=self.request.body.decode('utf-8'))
+        self.write(result.body.decode())
 
 
 application = tornado.web.Application([
     (r'/', MainHandler)
-], debug=False, db=db)
+], debug=False)
 
 application.listen(8888)
 tornado.ioloop.IOLoop.current().start()
