@@ -10,7 +10,18 @@ services:
     volumes:
       - ./middle:/app
     depends_on:
-      - db
+      - provider
+    ports:
+      - "8888:8888"
+    environment:
+        DB_HOST: db
+        DB_NAME: middle
+    command: python3 /app/main.py
+
+  provider:
+    build: ./provider
+    volumes:
+      - ./provider:/app
     ports:
       - "8888:8888"
     environment:
